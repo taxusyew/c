@@ -7,7 +7,7 @@ int swap(int * a, int * b)
 	*a = *b;
 	*b = temp;
 }
-// Ã°ÅİÅÅĞò
+// å†’æ³¡æ’åº
 int * BUBBLE(int * output, int n)
 {
 	int i = 0;
