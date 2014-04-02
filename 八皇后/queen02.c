@@ -30,9 +30,7 @@ void InitRow(int row)
 int CanPlace(int row, int col)
 {
 	int i,j;
-	int tmp_row = row;
-	int tmp_col = col;
-
+	
 	// 该行
 	for(i = 0; i < BoardRow; i++)
 		if ( (Board[row][i] != 0) && (col != i))
@@ -87,8 +85,7 @@ void GetResult(int row, int col)
 {
 	int j;
 	int i;
-	int k;
-
+	
 	// 解空间到底,返回
 	if(row == BoardRow)
 	{
