@@ -15,4 +15,5 @@
 
 ###7.数学问题
      
-     Palindromic.c  判断回文数
+     Palindromic.cpp  判断回文数，分配内存实现
+     Palindromic02.c  判断回文数，int变量实现
