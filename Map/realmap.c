@@ -117,7 +117,7 @@ int IfNodeExist(RealMap * rm, int id)
 
 // 判断要插入的弧是否存在
 // 0 不存在  1 存在
-int IfSingalArcExist(RealMap * rm, int src, int des)
+RMNode * IfSingalArcExist(RealMap * rm, int src, int des)
 {
 	RMNode * tmp;
 	RMNode * p;
@@ -149,7 +149,7 @@ int IfSingalArcExist(RealMap * rm, int src, int des)
 		}
 		else{
 			// 存在该弧
-			return 1;
+			return p;
 		}
 	}
 }
@@ -158,8 +158,26 @@ int IfSingalArcExist(RealMap * rm, int src, int des)
 // 0 不存在  1 存在
 int IfArcExist(RealMap * rm, int src, int des)
 {
-	return IfSingalArcExist(rm, src, des) | IfSingalArcExist(rm, des, src);
+	return (int)IfSingalArcExist(rm, src, des) | (int)IfSingalArcExist(rm, des, src);
 }
+
+// 得到指定的弧
+RMNode * GetArc(RealMap * rm, int src, int des)
+{
+	RMNode * tmp;
+
+	tmp = IfSingalArcExist(rm, src, des);
+	if(tmp)
+	{
+		return tmp;
+	}
+	else
+	{
+		return IfSingalArcExist(rm, des, src);
+	}
+	
+}
+
 // 添加一个弧，逻辑部分
 void AddArc(RealMap * rm, int src, int des, int weight)
 {
@@ -208,8 +226,6 @@ void AddArc(RealMap * rm, int src, int des, int weight)
 	
 	rm->numArc++;
 }
-
-
 
 // 删除一个节点下挂载的一个弧
 int DeleteAdjoinNode(RMNode * node,int id)
@@ -345,6 +361,30 @@ void DeleteNode(RealMap * rm, int id)
 	DeleteDiscreteArc(rm, id);
 }
 
+// 更新一个节点
+void UpdateArc(RealMap * rm, int src, int des, int value,int type)
+{
+	RMNode * tmp;
+
+	// 判断要插入的两个节点是否存在
+	if(!IfNodeExist(rm, des) || !IfNodeExist(rm, src))
+	{
+		printf("Error: des node does not exist!\n");
+		return;
+	}
+
+	// 判断要插入的两个节点是否存在
+	if(!IfArcExist(rm, src, des))
+	{
+		printf("Error: Arc does not exist!\n");
+		return;
+	}
+
+	tmp = GetArc(rm, src, des);
+	tmp->value = value;
+	tmp->type = type;
+}
+
 // 清空一个图
 // 销毁一个图
 
@@ -454,6 +494,7 @@ void main()
 
 	PrintRM(rm);
 
+	UpdateArc(rm, 1, 4, 9999, 1);
 	//DeleteArc(rm, 1, 5);
 	//DeleteArc(rm, 1, 2);
 	//DeleteArc(rm, 1, 3);
