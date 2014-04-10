@@ -27,6 +27,20 @@ RealMap * CreateRM()
 	return rm;
 }
 
+// 得到指定id的node
+RMNode * GetNode(RealMap * rm,int id)
+{
+	RMNode * tmp;
+	tmp = rm->first;
+
+	while (tmp->id != id)
+	{
+		tmp = tmp->next;
+	}
+	
+	return tmp;
+}
+
 // 添加一个节点
 void AddNode(RealMap * rm, int id, int val) 
 {
@@ -101,6 +115,51 @@ int IfNodeExist(RealMap * rm, int id)
 	return 1;
 }
 
+// 判断要插入的弧是否存在
+// 0 不存在  1 存在
+int IfSingalArcExist(RealMap * rm, int src, int des)
+{
+	RMNode * tmp;
+	RMNode * p;
+	RMNode * q;
+	tmp = rm->first;
+
+	if(!tmp)
+	{
+		printf("The map is empty. Can not insert!\n");
+		return 0;
+	}
+	else
+	{
+		tmp = GetNode(rm, src);
+		q = p = tmp;
+
+		// 多走一步，以保存上一个adjoin
+		p = p->adjoin;
+		while (p != 0 && p->id != des)
+		{
+			p = p->adjoin;
+			q = q->adjoin;
+		}
+	
+		if (p == 0)
+		{
+			// 不存在该弧
+			return 0;
+		}
+		else{
+			// 存在该弧
+			return 1;
+		}
+	}
+}
+
+// 判断要插入的弧是否存在
+// 0 不存在  1 存在
+int IfArcExist(RealMap * rm, int src, int des)
+{
+	return IfSingalArcExist(rm, src, des) | IfSingalArcExist(rm, des, src);
+}
 // 添加一个弧，逻辑部分
 void AddArc(RealMap * rm, int src, int des, int weight)
 {
@@ -112,9 +171,16 @@ void AddArc(RealMap * rm, int src, int des, int weight)
 	
 	tmp = rm->first;
 	// 判断要插入的两个节点是否存在
-	if(!IfNodeExist(rm, des))
+	if(!IfNodeExist(rm, des) || !IfNodeExist(rm, src))
 	{
 		printf("Error: des node does not exist!\n");
+		return;
+	}
+
+	// 判断要插入的两个节点是否存在
+	if(IfArcExist(rm, src, des))
+	{
+		printf("Error: Arc exist!\n");
 		return;
 	}
 
@@ -143,27 +209,10 @@ void AddArc(RealMap * rm, int src, int des, int weight)
 	rm->numArc++;
 }
 
-// 删除一个节点
-void DeleteNode(RealMap * rm, int id)
-{
-}
 
-// 得到指定id的node
-RMNode * GetNode(RealMap * rm,int id)
-{
-	RMNode * tmp;
-	tmp = rm->first;
 
-	while (tmp->id != id)
-	{
-		tmp = tmp->next;
-	}
-	
-	return tmp;
-}
-
-// 删除一个节点下挂载的弧
-void DeleteAdjoinNode(RMNode * node,int id)
+// 删除一个节点下挂载的一个弧
+int DeleteAdjoinNode(RMNode * node,int id)
 {
 	RMNode * p;
 	RMNode * q;
@@ -180,15 +229,36 @@ void DeleteAdjoinNode(RMNode * node,int id)
 	if (p == 0)
 	{
 		printf("Error: Arc does not exist!\n");
+		return 0;
 	}
 	else{
 		q->adjoin = p->adjoin;
 		free(p);
+		return 1;
 	}
 }
 
-// 删除一个弧
-void DeleteArc(RealMap * rm, int src, int des)
+// 删除一个节点下挂载的所有弧
+void DeleteAllAdjoinNode(RealMap * rm, RMNode * node)
+{
+	RMNode * p;
+	RMNode * q;
+	q = p = node;
+
+	// 多走一步，以保存上一个adjoin
+	p = p->adjoin;
+	while (p)
+	{
+		node->adjoin = p->adjoin;
+		free(p);
+		p = node->adjoin;
+		rm->numArc--;
+	}
+
+}
+
+// 删除一个单独的弧
+void DeleteSignelArc(RealMap * rm, int src, int des)
 {
 	RMNode * tmp;
 
@@ -199,8 +269,80 @@ void DeleteArc(RealMap * rm, int src, int des)
 		return;
 	}
 	tmp = GetNode(rm, src);
-	DeleteAdjoinNode(tmp, des);
-	rm->numArc--;
+	if(DeleteAdjoinNode(tmp, des))
+		rm->numArc--;
+}
+
+// 删除一个弧，实质是删除两个节点中的所有联系
+void DeleteArc(RealMap * rm, int src, int des)
+{
+	DeleteSignelArc(rm, src, des);
+	DeleteSignelArc(rm, des, src);
+}
+
+// 处理附着在一个节点上的弧
+void DeleteAttachArc(RealMap * rm, int id)
+{
+	RMNode * tmp;
+	
+	tmp = GetNode(rm, id);
+	DeleteAllAdjoinNode(rm, tmp);
+}
+
+// 删除节点链中的该节点
+void DeleteNodelist(RealMap * rm, int id)
+{
+	RMNode * p;
+	RMNode * q;
+	
+	q= p = rm->first;
+	while (p->id != id)
+	{
+		q = p;			
+		p = p->next;
+	}
+
+	// 特殊处理第一个元素
+	if(rm->first == p)
+	{
+		rm->first = p->next;
+	}
+	else{
+		q->next = p->next;
+	}
+	
+	free(p);
+	rm->numNode--;
+}
+
+// 删除分散在其他节点中的弧
+void DeleteDiscreteArc(RealMap * rm, int id)
+{
+	RMNode * tmp;
+	tmp = rm->first;
+
+	while(tmp)
+	{
+		if(DeleteAdjoinNode(tmp, id))
+			rm->numArc--;
+
+		tmp = tmp->next;
+	}
+	
+}
+
+// 删除一个节点
+void DeleteNode(RealMap * rm, int id)
+{
+	// 判断是否存在
+	if( !IfNodeExist(rm, id))
+	{
+		printf("Error: Node does not exist!\n");
+		return;
+	}
+	DeleteAttachArc(rm, id);
+	DeleteNodelist(rm, id);
+	DeleteDiscreteArc(rm, id);
 }
 
 // 清空一个图
@@ -301,16 +443,23 @@ void main()
 	AddArc(rm, 2, 3, 41);
 	AddArc(rm, 1, 3, 16);
 	AddArc(rm, 1, 2, 78);
-	AddArc(rm, 1, 7, 78);
+	AddArc(rm, 2, 1, 78);
+	//AddArc(rm, 1, 7, 78);
+	AddArc(rm, 1, 4, 78);
 	AddArc(rm, 1, 4, 78);
 	AddArc(rm, 1, 5, 78);
+	AddArc(rm, 4, 5, 78);
+	AddArc(rm, 3, 4, 78);
+	AddArc(rm, 3, 1, 78);
 
 	PrintRM(rm);
 
-	DeleteArc(rm, 1, 5);
-	DeleteArc(rm, 1, 2);
-	DeleteArc(rm, 1, 3);
-	DeleteArc(rm, 1, 7);
+	//DeleteArc(rm, 1, 5);
+	//DeleteArc(rm, 1, 2);
+	//DeleteArc(rm, 1, 3);
+	//DeleteArc(rm, 1, 7);
+
+	DeleteNode(rm, 1);
 
 	PrintRM(rm);
 }
