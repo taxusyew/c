@@ -385,8 +385,39 @@ void UpdateArc(RealMap * rm, int src, int des, int value,int type)
 	tmp->type = type;
 }
 
+// 判断一个图是否为空
+// 0 空  | 其他值  非空
+int IsRMEmpty(RealMap * rm)
+{
+	return (int)rm->first;
+}
+
 // 清空一个图
+void EmptyRM(RealMap * rm)
+{
+	RMNode * tmp;
+
+	if(!IsRMEmpty(rm))
+	{
+		printf("Error: Map is already empty!\n");
+		return;
+	}
+
+	tmp = rm->first;
+	while(tmp)
+	{
+		DeleteAttachArc(rm, tmp->id);
+		DeleteNodelist(rm, tmp->id);
+		tmp = rm->first;
+	}
+}
+
 // 销毁一个图
+void DestoryRM(RealMap * rm)
+{
+	EmptyRM(rm);
+	free(rm);
+}
 
 // 输出图的所有节点
 void PrintRMNode(RealMap * rm)
@@ -473,7 +504,7 @@ void PrintRM(RealMap * rm)
 void main()
 {
 	RealMap * rm = CreateRM();
-	
+
 	AddNode(rm, 1, 33);
 	AddNode(rm, 2, 44);
 	AddNode(rm, 3, 55);
@@ -501,6 +532,10 @@ void main()
 	//DeleteArc(rm, 1, 7);
 
 	DeleteNode(rm, 1);
-
 	PrintRM(rm);
+
+	EmptyRM(rm);
+	PrintRM(rm);
+
+	DestoryRM(rm);
 }
