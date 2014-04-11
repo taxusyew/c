@@ -499,43 +499,122 @@ void PrintRM(RealMap * rm)
 
 // 判断最短路径
 // 判断是否联通
+
+// 找到该节点相邻的所有节点
+void DigGroup(RealMap * rm, RMNode * node, int * signal)
+{
+	RMNode * tmp;
+	RMNode * tmp2;
+
+	// 除了第一次以外，都会造成重复置位
+	signal[node->id] = 1;
+	tmp = node->adjoin;
+	
+	if(!tmp)
+		return;
+
+	while(tmp)
+	{
+		tmp2 = GetNode(rm, tmp->id);
+		signal[tmp2->id] = 1;
+		DigGroup(rm, tmp2, signal);
+		tmp = tmp->adjoin;
+	}
+	
+}
+
 // 判断多少个域
+int DomainNum(RealMap * rm)
+{
+	RMNode * tmp;
+	int count = 0;
+	int i = 1;
+	int totalnode = rm->numNode;
+	
+	// 生成标志位数组
+	int * signal = (int *)malloc(sizeof(int)*(totalnode+1));
+	memset(signal, 0, sizeof(int)*(totalnode+1));
+	// 跳过id=0的位置
+	signal[0] = 1;
+	
+	tmp = rm->first;
+	
+	for (i; i <= totalnode ; i++)
+	{
+		if (signal[i]==0)
+		{
+			count++;
+			tmp = GetNode(rm, i);
+			DigGroup(rm, tmp, signal);
+		}
+	}
+
+	free(signal);
+	return count;
+
+}
 
 void main()
 {
 	RealMap * rm = CreateRM();
+
+	//AddNode(rm, 1, 33);
+	//AddNode(rm, 2, 44);
+	//AddNode(rm, 3, 55);
+	//AddNode(rm, 4, 66);
+	//AddNode(rm, 5, 77);
+
+	//AddArc(rm, 2, 3, 41);
+	//AddArc(rm, 1, 3, 16);
+	//AddArc(rm, 1, 2, 78);
+	//AddArc(rm, 2, 1, 78);
+	////AddArc(rm, 1, 7, 78);
+	//AddArc(rm, 1, 4, 78);
+	//AddArc(rm, 1, 4, 78);
+	//AddArc(rm, 1, 5, 78);
+	//AddArc(rm, 4, 5, 78);
+	//AddArc(rm, 3, 4, 78);
+	//AddArc(rm, 3, 1, 78);
+
+	//PrintRM(rm);
+
+	//UpdateArc(rm, 1, 4, 9999, 1);
+	////DeleteArc(rm, 1, 5);
+	////DeleteArc(rm, 1, 2);
+	////DeleteArc(rm, 1, 3);
+	////DeleteArc(rm, 1, 7);
+
+	//DeleteNode(rm, 1);
+	//PrintRM(rm);
+
+	//EmptyRM(rm);
+	//PrintRM(rm);
 
 	AddNode(rm, 1, 33);
 	AddNode(rm, 2, 44);
 	AddNode(rm, 3, 55);
 	AddNode(rm, 4, 66);
 	AddNode(rm, 5, 77);
+	AddNode(rm, 6, 33);
+	AddNode(rm, 7, 44);
+	AddNode(rm, 8, 55);
+	AddNode(rm, 9, 66);
+	AddNode(rm, 10, 77);
 
-	AddArc(rm, 2, 3, 41);
-	AddArc(rm, 1, 3, 16);
 	AddArc(rm, 1, 2, 78);
-	AddArc(rm, 2, 1, 78);
-	//AddArc(rm, 1, 7, 78);
+	AddArc(rm, 1, 3, 78);
 	AddArc(rm, 1, 4, 78);
-	AddArc(rm, 1, 4, 78);
-	AddArc(rm, 1, 5, 78);
-	AddArc(rm, 4, 5, 78);
-	AddArc(rm, 3, 4, 78);
-	AddArc(rm, 3, 1, 78);
+	AddArc(rm, 2, 5, 78);
+	AddArc(rm, 3, 5, 78);
+	AddArc(rm, 3, 7, 78);
+	AddArc(rm, 4, 6, 78);
+	AddArc(rm, 4, 7, 78);
+	AddArc(rm, 5, 6, 78);
+	AddArc(rm, 5, 7, 78);
 
-	PrintRM(rm);
+	AddArc(rm, 8, 9, 78);
 
-	UpdateArc(rm, 1, 4, 9999, 1);
-	//DeleteArc(rm, 1, 5);
-	//DeleteArc(rm, 1, 2);
-	//DeleteArc(rm, 1, 3);
-	//DeleteArc(rm, 1, 7);
-
-	DeleteNode(rm, 1);
-	PrintRM(rm);
-
-	EmptyRM(rm);
-	PrintRM(rm);
-
+	// 得到图有多少个连通域
+	int count = DomainNum(rm);
 	DestoryRM(rm);
 }
