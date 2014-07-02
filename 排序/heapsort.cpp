@@ -1,5 +1,7 @@
 #include "stdlib.h"
 #include "stdio.h"
+#include "time.h"
+#include "string.h"
 
 #define LEFT(i) (2*i +1)
 #define RIGHT(i) (2*i +2)
@@ -47,21 +49,20 @@ void buildMaxHeap(int * array, int len, int orderLen)
 {
 	int i = len - orderLen - 1;	// 记录无序区最后一个下标，所以多-1
 	
+	// 刚开始为奇数,只有一片叶子
+	if (i%2 == 1)
+	{
+		sswap(array, PARENT(i), i);
+		i--;
+	}
+
 	for(i; i > 0; i--)
 	{
-		// 刚开始为奇数,只有一片叶子
-		if (i%2 == 1)
-		{
-			sswap(array, PARENT(i), i);
-		}
-		else
-		{
-			// 两个叶子都和父节点交换
-			sswap(array, PARENT(i), i-1);
-			sswap(array, PARENT(i), i);
+		// 两个叶子都和父节点交换
+		sswap(array, PARENT(i), i-1);
+		sswap(array, PARENT(i), i);
 
-			i--;
-		}
+		i--;
 	}
 }
 
@@ -105,9 +106,31 @@ void printHeap(int * heap, int len)
 void main()
 {
 	//int heap[10] = {12,48,66,34,12,87,84,25,79,34};
-	int heap[2] = {120,48};
+	//int heap[2] = {120,48};
 
-	heapSort(heap, 2);
+	// 设置随机数种子
+	srand((int)time(0));
+	// 第一次是固定的2
+	(int)(20.0*rand()/(RAND_MAX+1.0));				
+	int length = (int)(20.0*rand()/(RAND_MAX+1.0));
+	int * heap = (int *)malloc(sizeof(int)*length);
+	memset(heap, 0 , sizeof(int)*length);
 
+	printf("数组长度为 %d\n", length);
+
+	// 初始化数组
+	for (int i = 0; i < length; i++)
+	{
+		heap[i] = (int)(500.0*rand()/(RAND_MAX+1.0))+1;
+		//printf("%d\n", (int)(20.0*rand()/(RAND_MAX+1.0)) );
+	}
+	
+	printf("初始数组为：", length);
+	printHeap(heap, length);
+
+	// 排序
+	heapSort(heap, length);
+
+	free(heap);
 	system("pause");
 }
