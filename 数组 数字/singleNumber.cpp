@@ -2,6 +2,14 @@
 // 摘自http://www.cnblogs.com/wei-li/p/SingleNumberII.html
 // 真正按位算，O(n)
 
+// ones&t 保留t中已经在其他数字中出现一次的bit，也就是两次
+// twos |= 保存这些bit
+// ones ^= t 新出现的bit保留，已经出现过的第二次bit，也先期保留在twos里了
+// ones & twos 同时出现的是三次
+// ~threes 三次取反，留空白
+// ones &= 用三次的空白擦除一次中重负的bit
+// twos &= 擦除两次中重复的
+
 int singleNumber(int A[], int n) {
     int ones = 0;//记录只出现过1次的bits
     int twos = 0;//记录只出现过2次的bits
