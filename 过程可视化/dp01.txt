@@ -1,0 +1,49 @@
+void setup(){
+  size(440, 220);
+  fill(255, 190);
+  textSize(20);
+}
+
+void draw(){ 
+  background(0);
+  int charHeight = 20;
+  int baseX = 40;
+  int baseY = 0;
+  int arrayLen = 6;
+  int[] A = {5, 3, 4, 8, 6, 7};
+  int[] d = new int[6];
+  int len = 1;
+  
+  baseY += charHeight;
+  text("i", 40, baseY);
+  baseY += charHeight;
+  
+  // print sketch
+  for(int i = 0; i < arrayLen; i++)
+  {
+    baseY += charHeight;
+    text(i, baseX, baseY);
+  }
+  
+  baseX = 80;
+  baseY = 60;
+  
+  // print every step
+  for(int i=0; i<arrayLen; ++i){
+      d[i] = 1;
+      text(d[i], baseX, baseY);
+      //baseY += charHeight;
+      
+      for(int j=0; j<i; ++j)
+      {
+        if(A[j]<=A[i] && d[j]+1>d[i])
+              d[i] = d[j] + 1;
+        baseX += 20;
+        text(d[i], baseX, baseY);
+      }
+      if(d[i]>len) len = d[i];
+      
+      baseY += charHeight;
+      baseX = 80;
+  }
+}
