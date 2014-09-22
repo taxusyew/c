@@ -25,6 +25,8 @@
      
      Palindromic.cpp  判断回文数，分配内存实现
      Palindromic02.c  判断回文数，int变量实现
+     prime.cpp        判断给定范围内的素数个数
+     
 ###7.数组中的数字问题
      i)   在一个每个数字出现2次的数组中，找到只出现一次的两个数字   findAbnormal.cpp
      ii)  在一个每个数字出现3次的数组中，找到只出现一次的数字
