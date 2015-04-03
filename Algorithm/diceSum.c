@@ -2,6 +2,9 @@
 #include "stdlib.h"
 #include "string.h"
 
+// win 8.1
+// vs 2013
+
 main() {
 
 	int step = 2016;
